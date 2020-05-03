@@ -1,0 +1,135 @@
+# Elméleti megfontolás
+
+```{css, echo=FALSE}
+body {
+text-align: justify;
+  }
+```
+
+## A megfelelő indikátor kiválasztása
+
+Ahhoz, hogy a születendő gyermekek számának alakulásában lezajló trendek mögötti okozati kapcsolatokat értelmezni tudjuk elengedhetetlen a születésszámmal kapcsolatos indikátorok fogalmainak tisztázása, és mind az erről szóló viták, mind a modellezéssel kapcsolatosan az egyik legkritikusabb pont a megfelelő mutató kiválasztása. Ennek elvégzéséhez ezen szakaszban szeretném az általánosan ismert mutatókat röviden bemutatni. A Központi Statisztikai Hivatal honlapján is elérhető a téma három leggyakrabban alkalmazott mutatója: a született gyermekek száma összesen, az ezer főre jutó gyermekek száma, illetőlegesen a teljes termékenységi arányszám.
+Az előbbi felsorolás sorrendjében haladva, ezen indikátorok egyre érzéketlenebbek az ország népességének meglévő helyzetével kapcsolatosan. Az összes gyermekszületésének számossága teljes mértékben összefügg az adott évben, adott országban élő nők számával, ily módon már csak attól is képes változni az értéke, hogy az ország populációjának mértéke megváltozik. Azaz, ha az anyákat jellemző gyermekvállalási hajlamban nem is történik változás, pusztán az országban élő nők száma növekszik vagy csökken, akkor is megváltozik az értéke. Az ezer főre jutó születésszám az imént említett eseményre érzéketlen. Azonban nem szűrődik ki belőle a populáció összetételében zajló elváltozás. Ez leggyakrabban a populáció elöregedésében érhető tetten a fejlett országokban, mivel a népesség száma nem egyenlő mértékben változik a szülőképes korú nőkkel. Szélsőséges esetben azonban történhet ez akár a nemek arányainak felborulásán keresztül is, ahogy történik ez a mai Kínában a szelektív abortusz eredményeként. 
+
+A felsorolás sorrendjének megfelelően pedig a teljes termékenységi arányszám (továbbiak TTA) bemutatása az, amelyre most rá szeretnék térni. A teljes termékenységi arányszám kiszámítási módjához szükségessé válik a születési kohorsz fogalmának bevezetése, mellyel az azonos évben születtek csoportját illetjük. Definíciója szerint a TTA kiszámítása során minden gyermekvállalási életkorba eső kohorsz által adott évben világra hozott gyermekek számát elosztjuk a kohorsz létszámával, így megkapva annak a feltételes valószínűségét, hogy amennyiben adott nő adott kohorszhoz tartozik, mennyi a valószínűsége, hogy abban az évben gyermeket vállalt. Ezeket a valószínűségeket összegezve kapjuk meg a teljes termékenységi arányszámot. Ebből kiindulva tehát a TTA hipotetikus jellegű mutató és arra a kérdésre ad választ, hogy várhatóan hány gyermeknek adna életet egy nő élete folyamán, ha most lépne be a gyermekvállalási életkorba (most töltené be a 15. életévét) (Központi Statisztikai Hivatal, 2018). Ezen számítási módot figyelembe véve tehát elmondható, hogy a TTA mentes mind az ország népességének számosságától, mind a lakosság összetételétől.
+
+Annak megválaszolásához, hogy mekkora eltéréshez vezet az eltérő mutatók alkalmazása érdemes a mutatókban való relatív változások vizsgálatát elvégezni. Azért, hogy a három mutatót egymás mellett lehessen szemléltetni 1960-as évi bázisindexüket tüntettem fel az 1. ábrán.
+
+```{r data, echo=FALSE}
+library(readxl)
+load("C:/Users/user/Desktop/szakdolgozat/fertiliy/R files/Szakdolgozat/Thesis_Variables_2020.04.10.RData")
+```
+
+```{r theme_economist, echo=FALSE, message=FALSE, warning=FALSE}
+library(ggplot2)
+library(ggthemes)
+theme_set(
+  theme_economist() + theme(
+    legend.title = element_blank(),
+    plot.title = element_text(margin = margin(t = 0, r = 0, b = 10, l = 0)),
+    axis.title = element_text(margin = margin(t = 10, r = 10, b = 0, l = 0)),
+    axis.ticks.length = unit(5, "points"),
+    panel.grid.major = element_line(
+      colour = "grey",
+      size = rel(1.75)
+    )
+  )
+)
+```
+
+```{r p1_baseindexes, fig.height=7, fig.width=10, message=FALSE, warning=FALSE}
+library(tidyverse)
+df <- data.frame(LiveBirthAndFertility$Year, LiveBirthAndFertility$LiveBirthTotal / LiveBirthAndFertility$LiveBirthTotal[1], LiveBirthAndFertility$LiveBirthTo1000 / LiveBirthAndFertility$LiveBirthTo1000[1], LiveBirthAndFertility$TotalFertility / LiveBirthAndFertility$TotalFertility[1])
+names(df) <- c("Year", "Összes született gyermek", "Ezer nőre jutó született gyermekek száma", "Teljes termékenységi arány")
+df <- df %>% gather(key = "variable", value = "value", -Year)
+
+ggplot(df, aes(x = Year, y = value)) +
+  geom_line(aes(color = variable), size = 2) +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1), expand = c(0, 0), limits = c(0.5, 1.5)) +
+  scale_x_continuous(expand = c(0, 0)) +
+  labs(
+    title = "1. ábra. Születési mutatók bázisindexe", subtitle = "1960=100%",
+    caption = "A bázisindex használatát a hárommutató együttesen való ábrázolásának céljából tartottam indokoltnak."
+  ) +
+  xlab("Év") +
+  ylab("Százalék") +
+  scale_color_economist() +
+  theme(
+    legend.text = element_text(size = 10)
+  )
+```
+
+Egy olyan hipotetikus esetben, amelyben az ország népességége és korfájának összetétele állandó, pusztán a gyermekvállalási hajlandóságban történik változás, azt várhatjuk, hogy a három mutató egymáshoz viszonyított aránya állandó marad. Az 1. ábráról jól kivehető, hogy a három tárgyalt mutató bázisindexe (1960-as évekhez hasonlított mértéke) alapvetően az 1970-es évek közepén érte el az egymástól vett eltérés maximumát. Az eltérés kialakulásának oka az 1980-as évek elejéig tapasztalható népességszám növekedés. Az 1970-es évek közepén a hirtelen termékenység növekedésnek hátterében az abortuszengedélyezési eljárás szigorítása, illetőleg a gyes bevezetése állt, azonban a 20 évvel korábban a Ratkó-korszakban született nők gyermekvállalási korba lépése a másik két mutató emelkedését felerősítette, míg a TTA mentes annak hatásától (KSH, 2018).
+
+Az 1980-as évektől kezdődően Magyarország lakosságát csökkenés jellemzi, ily módon a TTA bázisindexe a teljes születésszám bázisindexe fölé került, azaz a szülőképes korú nők számosságában beálló csökkenés miatt a született gyermekek száma nagyobb mértékben csökkent, mint a gyermek vállalási hajlandóság. 2010-et követően pedig ismételten azzal a helyzettel állunk szemben, hogy bár a TTA jelentős mértkében növekszik, ez nem nyilvánul meg az évenkénti gyermekszületés növekedésében.
+Annak függvényében melyik mutatót választjuk eltérő eredményeket kaphatunk amikor más változókkal való együttmozgásukat figyeljük, kiemelten fontos erre figyelni mikor az elmúlt évtized tendenciára fordítjuk figyelmünket. Például, ha a családtámogatások sikerét akarjuk értékelni az elmúlt néhány évben, akkor az évente született gyermekek száma alapján azt látnánk nincs növekedés, míg a TTA növekedést mutat. Döntő kérdés, hogy szükséges-e figyelembe venni a vizsgálat során a korfában már meglévő változásokat. Egy családtámogatás értékelésekor például akkor tekinthetjük, hogy a gyermekvállalási hajlandóságot sikerült emelni, ha a teljes termékenységi ráta növekedett, az mellékes kérdés, hogy a korábbi években lezajló folyamatok olyan módon alakították a gyermekvállalási korban lévő nők számát, hogy a teljes születésszám ennek ellenére stagnál. Ellenben, ha a szülőképes korú nők számában történő változás az emigráció hatása, amely pedig a vizsgált magyarázó változóval lehet kapcsolatban, úgy a teljes születésszámot érdemes elemezni. Mindazonáltal a tény, hogy a magyar termékenységi ráta lényegesen a 2,1-es populáció egyszerű reprodukcióját biztosító határ alatt mozgott az utóbbi félévszázadban (néhány évet a 1970-es években leszámítva) a népességnek zéró nettó migrációs hatás mellett is csökkennie kellett ekkora időszakban. A várható élettartam növekedéséből adódóan a népességszám tud stagnálni, illetőleg növekedni is azon években is, amikor a TTA nem éri el a 2,1-es szintet, azonban ilyenkor a népesség elöregedése következik be. Hasonló módon pozitív nettó migrációs mérleg mellett is lehetséges, hogy egy ország népessége úgy növekedjen, hogy a TTA közben az említett érték alatt van. Az anyánkként számolt átlagos 2,1 gyermek tehát a migráció és a halandósági ráta változatlansága mellett biztosítja a reprodukciót (OECD, 2019). A kettőhöz hozzáadott 0,1 oka pedig az alacsony csecsemőhaladósági ráta figyelembevétele.
+
+```{r p2_fertility_replacementrate, fig.height=7, fig.width=10}
+df <- data.frame(LiveBirthAndFertility$Year, LiveBirthAndFertility$TotalFertility, rep(2.1, length(LiveBirthAndFertility$TotalFertility)))
+names(df) <- c("Year", "Teljes termékenységi arány", "Az egyszerű reprodukciót jelentő érték")
+df <- df %>% gather(key = "variable", value = "value", -Year)
+
+ggplot(df, aes(x = Year, y = value)) +
+  geom_line(aes(color = variable, linetype = variable), size = 2) +
+  scale_y_continuous(expand = c(0.1, 0.1)) +
+  scale_x_continuous(expand = c(0, 0)) +
+  labs(
+    title = "2. ábra. Magyarország termékenységi rátájának alakulása", subtitle = "1960-2018",
+    caption = "Az ábra alapján jól látható, hogy az érték a vizsgált időszakban jelentősen a 2,1-es egyszerű reprodukció határát jelentő érték alatt maradt, globális minimumát (1,23) pedig 2011-ben érte el."
+  ) +
+  scale_color_manual(values = c("#e3120b", "#244747")) +
+  scale_linetype_manual(values = c("longdash", "solid")) +
+  ylab("Gyermek/anya") +
+  xlab("Év")
+```
+
+Az előbbiekben ismertettek alapján belátható, hogy mivel a vizsgált időszakban az alacsony termékenységi rátából fakadóan változások álltak be a magyar szülőképes korú nők számában. Így indokolt a születésszám alakulását befolyásoló tényezők hatását a TTA-ra vetítve vizsgálni, ezzel leválasztva a gyermekszületésszámban történő változás azon részét, amelyet egyszerűen a népességszáma és összetétele okoz. Fordított esetben viszont, mikor a születésszám változásának hatását vizsgáljuk más gazdasági vagy társadalmi indikátorokra, úgy indokolatlannak tűnik a születésszám változásának ilyen jellegű „tisztítása”, hiszen nem számít miért született adott évben kevesebb gyerek, ha arra a kérdésre keressük a választ, hogy a születésszám befolyásol-e valamit. Természetesen felmerülhetnek olyan közgazdasági indokok, amelyek esetenként a három mutató közül valamely másik mutató választását indokolja (például valamit egy főre kivetített mutatókat érdemesebb volna ezer főre eső születésszámmal összevetni), így a későbbiekben leírt modelleket mindhárom változón futtattam. Az esetek jelentős hányadában nem kaptunk igazán nagy eltérést, ahol igen, ott a mögöttes közgazdasági magyarázat kifejtése indokolt.
+
+
+## Az elemzés során felhasznált további adatok mögött húzódó elméleti megfontolások a feldolgozott szakirodalom alapján
+
+Elemzésemet kiterjeszteni kívánom azon kérdéskörre, hogy a magyar születésszám alakulására milyen tényezők vannak hatással. Ezen folyamat első lépése, hogy a felhasznált irodalom alapján hipotéziseket állítottam fel, melyeket adatok gyűjtése után tesztelésnek vetettem alá. A gyűjtött adatok forrásainak pontos megnevezése a függelék F1 csatolmánya tartalmazza.
+Tárkányi (2008) második demográfiai átmenetről szóló írásában a TTA változásának házasodással fogamzásgátló tabletták használatával lévő kapcsolatát vizsgálta a fejlett országok, illetőleg Magyarország tekintetében. Gazdasági változók közül az egy főre jutó nettó jövedelmet emelte be az elemzésbe nominál- és reálértéken számolva, munkaerőpiaci mutatókat nem és korcsoport szerinti felbontásban. 
+
+*Cumming* és *Dettling* (2019) közös tanulmányukban a monetáris politika termékenységre gyakorolt hatását vizsgálta. A szerzőpárosnak részletes adatmennyiség állt rendelkezésére, mely alapján a kifejtett hatás (1 százalékpontos kamatcsökkenés átlagosan a születési arány 2 százalékos növekedését okozza) útelemzését is elvégezze. Azon eredményre jutottak, hogy a hatás a jelzáloghiteleken keresztül érvényesül. Ezen eredményből kiindulva beemeltem a vizsgálat fókuszába az alábbi változókat: háztartások adósságállománya, épített lakások száma összesen, épített lakások tízezer lakosra kivetítve, megtakarítási ráta, egy főre eső fogyasztás indexe (1960=100%), anyagi deprivációban élők aránya a lakhatás tekintetében, 18 éven aluli anyagi deprivációban élők aránya a lakhatás tekintetében, 18 és 65 év közötti anyagi deprivációban élők aránya a lakhatás tekintetében.
+
+*Levitt* és *Dubner* (2006) könyvükben az 1990-es években az USA-ban csökkenő bűnözési számot a korábban bevezetett abortusz törvények liberalizációjának tekintik. A szerzőpáros egy másik megállapítása az Egyesült Államok adataiból kinyerve, hogy a születésszám és a császármetszések között ellentétes kapcsolat áll fenn, azaz magasabb a császármetszéssel történő szülések száma azon időszakban, amikor összességében a született gyermekek száma alacsonyabb.
+
+*Duflo* és *Banerjee*  (2011) könyvükben arra a jelenségre hívják fel a figyelmet, hogy fejlődő országokban a működő nyugdíjrendszer hiánya olyan ösztönzést jelent az emberek számára, hogy több gyermeket vállalnak, mivel időskorukra ily módon tudják egzisztenciális biztonságuk alapját lefektetni. Bár Magyarország fejlettségéből adódóan valószínűtlen, hogy ezen jelenség felfedezhető lenne, a hipotézis tesztelése céljából a nyugdíjtámogatás mértékét a GDP százalékában kifejezve felvettem a vizsgált mutatók közé.
+
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+library(kableExtra)
+df <- data.frame(
+  c(
+    "*Tárkányi*",
+    "*Cumming* és *Dettling*",
+    "*Levitt* és *Dubner*",
+    "*Duflo* és *Banerjee*"
+  ), c(
+    "Magyaroszág",
+    "Egyesült Királyság",
+    "Egyesült Államok",
+    "India"
+  ), c(
+    "jövedelem és foglalkoztatás mutatói",
+    "megtakarítások és eladósodás mutatói",
+    "bűnözési statisztikák, császármetszések aránya",
+    "nyugdíjkifizetések mértéke, szegénységi mutatók"
+  )
+)
+names(df) <- c(
+  "Szerző", "Szerző által mely országra fogalmazódott meg a hipotézis",
+  "Forrás alapján elemzésembe fókuszába helyezett indikátorok"
+)
+df %>%
+  kable(
+    caption = "Szakirodalom áttekintése alapján dolgozatom témájának releváns gazdasági- és társadalmi indikátorainak köre", align = c("c", "c"), booktaps = F
+  ) %>%
+  kable_styling(
+    bootstrap_options = c("striped", "hover", "condensed", "responsive"), full_width = T, fixed_thead = T
+  )
+```
+
+Mindezeken túl az állami családtámogatások mértékét emeltem még be a vizsgált változók csoportjába, annak megítélésére, hogy valóban látszik-e, hogy a natalizmus jegyében erre fordított összegek látszólag elérik-e hatásukat.
+
