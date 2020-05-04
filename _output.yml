@@ -1,0 +1,6 @@
+bookdown::gitbook:
+  config:
+    toc:
+      collapse: none
+    download: [pdf]
+    edit: https://github.com/MarcellGranat/fertility/edit/master/%s

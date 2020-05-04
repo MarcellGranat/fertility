@@ -1,19 +1,15 @@
 ---
 title: "A SZÜLETÉSI MUTATÓK ALAKULÁSA ÉS AZ AZT KÍSÉRŐ VÁLTOZÁSOK MAGYARORSZÁGON"
 author: "Granát Marcell "
-date: "<center> `r Sys.Date()` </center>"
 output: bookdown::gitbook
 site: bookdown::bookdown_site
-editor_options: 
-  chunk_output_type: inline
-  
-  
 ---
 
 
 # Absztrakt {-}
 
 Konzulens: Dr. Keresztély Tibor\
+Kézirat leadásának dátuma: 2020. április 20.\
 ```{r echo=FALSE, message=FALSE, warning=FALSE}
 library(knitr)
 include_graphics("https://media.licdn.com/dms/image/C561BAQGd_eudrEIxvA/company-background_10000/0?e=2159024400&v=beta&t=8kKWK_Sgsueqhk2G5egrdsMF0-ncfKT03M09q-8NCTE")
