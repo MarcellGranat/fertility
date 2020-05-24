@@ -1,0 +1,51 @@
+# Fuggelek es irodalomjegyzek {-}
+
+```{css, echo=FALSE}
+p {
+text-align: justify;
+}
+caption {
+      color: #4a4a4a;
+      font-weight: bold;
+      font-size: 1.2em;
+      text-align: center;
+      font-family: Helvetica;
+    } 
+```
+
+## Függelék {-}
+
+```{r echo=FALSE}
+F1
+```
+
+```{r echo=FALSE}
+F2
+```
+
+```{r echo=FALSE}
+F3
+```
+
+```{r echo=FALSE, fig.height=5.1, fig.width=10, message=FALSE, warning=FALSE}
+F4
+```
+
+## Irodalomjegyzék {-}
+
++ Cumming, F., & Dettling, L. (2019). Monetary policy and birth rates: the effect. London: Bank of England.
++ Duflo, E., & Banerjee, A. V. (2011). Poor Economics: A Radical Rethinking of the Way to Fight Global Poverty. USA: PublicAffairs.
++ Granger C. W. J., & Newbold, P. (1973). Sprurious Regressions in Econometrics. Nottingham: University of Nottingham.
++ Kirchgässner, G., & Wolters, J. (2007). Introduction to Modern Time Series Analysis. Berlin: Springer.
++ Kornai, J. (2012). A szocialista rendszer. Pozsony: Kalligram Könyv- és Lapkiadó Kft.
++ Központi Statisztikai Hivatal. (2018). Terhességmegszakítások. Központi Statisztikai Hivatal.
++ Levitt, S. D., & Dubner, S. J. (2006). Freakonomics. New York: William Morrow An Imprint of HarperCollins Publishers.
++ Maddala, S. G. (2004). Bevezetés az ökonometriába. Budapest: Nemzeti Tankönyvkiadó Rt.
++ OECD. (2019). Society at a Glance 2019: OECD Social Indicators. Paris: OECD Publishing.
++ Tárkányi, Á. (2008). A második demográfiai átmenet néhány főbb tényezője a fejlett világban és magyarországon. Demográfia.
++ The Economist. (2019). China needs people to have more children. So why punish those who do? London: The Economist Group Limited.
++ The Economist. (2020, a). Economists’ forecasts for GDP growth in 2020 vary widely. London: The Economist Group Limited.
++ The Economist. (2020, b). Europe has good and bad reason for wanting more babies. London: The Economist Group Limited.
++ The Economist. (2020, c). How high will unemployment in America go? London: The Economist Group Limited.
++ The Economist. (2020. április 2). Politics this week.
+

@@ -1,375 +1,91 @@
-# A magyar születési mutatók egyváltozós modellezése Box-Jenkins eljárással
+# A magyar szuletesi mutatok egyvaltozos modellezese Box-Jenkins eljarassal
 
 ```{css, echo=FALSE}
-body {
+p {
 text-align: justify;
-  }
+}
+caption {
+      color: #4a4a4a;
+      font-weight: bold;
+      font-size: 1.2em;
+      text-align: center;
+      font-family: Helvetica;
+    } 
 ```
-
 
 Mielőtt a születési mutatók alakulásának gazdasági és társadalmi hatásainak elemzését elvégezném a születési mutatók egyváltozós modellezését készítem el. Ezen elemzés során ARIMA-modellezést hajtok végre Box-Jenkins-féle módszerrel. Dolgozatomban ennek a lépésnek a célja, hogy a későbbi más változókkal vizsgált kapcsolat vizsgálat előtt jobban megismerjük a vizsgált idősort, megmutatva, hogy alakulása mennyire függ saját maga korábbi értékeitől (mennyire erős esetünkben az útfüggőség). Ily módon elkerülhető, hogy úgy elemezzünk kapcsolatvizsgálatot idősorok között, hogy esetleg tudnánk, hogy a tárgyalt idősor alakulásának oka leginkább a saját múltbeli értékeiben keresendő (Granger & Newbold, 1973).
 
 ## A módszertan bemutatása
 
-A Box-Jenkins módszer népszerűségét az idősorelemzésben az adja, hogy majdnem minden esetben használható feltétel nélküli előrejelzésre, követelményei között pusztán a gyenge stacionaritás, illetve az idősor korábbi értékeinek ismeretei szükséges, továbbá bizonyos esetekben jobb előrejelzést képesek produkálni, mint a hagyományos ökonometriai modellek (Kirchgässner & Wolters, 2007).
-A Box-Jenkins-módszer lépései tradicionálisan a következők: (1.) Az idősor differenciázásával az eredeti idősor stacionerré alakítás (itt továbbra is a fentebb említett gyenge stacionaritás értendő, tehát az idősor minden egyes pontjára teljesülnie kell az első két momentumban való egyezőségnek), (2.) modell identifikálása, (3.) feltételezett modell becslése, (4.) modell-diagnosztika (Maddala, 2004). Az idősor stacionárius mivoltának eldöntése kiterjesztett Dickey-Fuller teszttel kerül eldöntésre, majd ezt követően az identifikáció (ARIMA-modellhez tartozó autoregresszív és mozgóátlag paraméterek számának meghatározása) a korrelogramok szemrevételével kerül eldöntésre. A modell-diagnosztika során szükséges ellenőrizni, hogy a reziduumok fehérzajok-e (ellenőrzése Ljung-Box-teszttel), illetve normál eloszlást követnek-e (Jarque-Bera-teszttel kerül megvizsgálásra). Amennyiben a reziduumok nem fehérzajok, tehát továbbra is maradt benne autokorreláció, úgy a modell előrejelzésre alkalmatlan. Amennyiben a hibatagok nem normáleloszlást követnek úgy a két alkalmazható becslési eljárás közül a Maximum Likelihood (ML) módszere torzított eredményt fog adni, így csak a feltételes legkisebb négyzetek eljárás (conditional sum of squares, CSS) alkalmazható.
-Miután a korrelogramok szemrevételével csak a tiszta mozgóátlag-, illetve véletlen bolyongás-folyamatok azonosíthatók egyértelműen, így több lehetséges modell megbecslése ajánlott, majd a modellek illeszkedésének jóságát jellemző információs kritériumok segítségével kiválasztani a legjobb modellt.
+A Box-Jenkins módszer népszerűségét az idősorelemzésben az adja, hogy majdnem minden esetben használható feltétel nélküli előrejelzésre, követelményei között pusztán a gyenge stacionaritás, illetve az idősor korábbi értékeinek ismeretei szükséges, továbbá bizonyos esetekben jobb előrejelzést képesek produkálni, mint a hagyományos ökonometriai modellek (Kirchgässner & Wolters, 2007).\
+\
+A Box-Jenkins-módszer lépései tradicionálisan a következők: (1.) Az idősor differenciázásával az eredeti idősor stacionerré alakítás (itt továbbra is a fentebb említett gyenge stacionaritás értendő, tehát az idősor minden egyes pontjára teljesülnie kell az első két momentumban való egyezőségnek), (2.) modell identifikálása, (3.) feltételezett modell becslése, (4.) modell-diagnosztika (Maddala, 2004). Az idősor stacionárius mivoltának eldöntése kiterjesztett Dickey-Fuller teszttel kerül eldöntésre, majd ezt követően az identifikáció (ARIMA-modellhez tartozó autoregresszív és mozgóátlag paraméterek számának meghatározása) a korrelogramok szemrevételével kerül eldöntésre. A modell-diagnosztika során szükséges ellenőrizni, hogy a reziduumok fehérzajok-e (ellenőrzése Ljung-Box-teszttel), illetve normál eloszlást követnek-e (Jarque-Bera-teszttel kerül megvizsgálásra). Amennyiben a reziduumok nem fehérzajok, tehát továbbra is maradt benne autokorreláció, úgy a modell előrejelzésre alkalmatlan. Amennyiben a hibatagok nem normáleloszlást követnek úgy a két alkalmazható becslési eljárás közül a Maximum Likelihood (ML) módszere torzított eredményt fog adni, így csak a feltételes legkisebb négyzetek eljárás (conditional sum of squares, CSS) alkalmazható.\
+\
+Miután a korrelogramok szemrevételével csak a tiszta mozgóátlag-, illetve véletlen bolyongás-folyamatok azonosíthatók egyértelműen, így több lehetséges modell megbecslése ajánlott, majd a modellek illeszkedésének jóságát jellemző információs kritériumok segítségével kiválasztani a legjobb modellt.\
+\
 Jelen tanulmányban további komplexitást jelent, hogy három különböző idősoron is elvégzem a modellezést, az így kapott modellek illeszkedése pedig nem összehasonlítható az információs kritériumok alapján. Ennek megoldására az alábbi módon járok el: (3.) mind a három változó esetén az utolsó 10 megfigyelés elhagyásával becslem meg a lehetséges modelleket, (4.) az így elkészült modellek közül kiválasztom Akaike-féle információs kritérium alapján a legjobb illeszkedésű modelleket idősoronként. Ezt követően ezeket a (5.) modelleket alávetem a fentebb megnevezett modell-diagnosztikai teszteknek, (6.) és elkészítem velük a modellbecslésből kihagyott 10 évre az ex post előrejelzéseket, amelyek segítségével a modellek közül kiválasztom a legkisebb átlagos abszolút százalékos hibával (mean absolute percentage error, MAPE) rendelkezőt.
 
 ## Egy általános modell bemutatása
 
-A következőben a fentebb felsorolt lépések közül az első négyet végzem el részletesen a termékenységi ráta differenciázott idősorán CSS módszerrel^[Azért válaszottam az alábbi idősort az általános bemutáshoz, mert ez lesz a legkisebb MAPE-vel rendelkező modell, amelyet majd a későbbiekben fejtek ki.].  Az identifikáció első lépése a differenciázás számának megválasztása (d). A d számú differenciázásra akkor van szükség, ha az idősor eredetileg nem stacioner, de d számú differenciázás elvégzése után már stacioner^[Csakúgy, mint korábban továbbra is gyenge stacionaritást értek stacionaritás alatt.]  a kapott idősor. Mindhárom mutató esetében szemrevételezéssel is megállapítható, hogy ez nem teljesül. Az itt tárgyalt esetben a kiterjesztett Dickey-Fuller (Augmented Dickey-Fuller, ADF) teszt p-értéke 44.80%. Miután a Dickey-Fuller teszt esetében az alternatív hipotézis tartalmazza azt az állítást, hogy az idősor stacioner, így valóban most már teszttel is megállapíthatjuk, hogy ez az idősor nem stacioner, mivel trendet tartalmaz. Magát a trendet a Hodrick-Prescott szűrő segítségével is prezentálom a 3. ábrán.
+A következőben a fentebb felsorolt lépések közül az első négyet végzem el részletesen a termékenységi ráta differenciázott idősorán CSS módszerrel.^[Azért választottam az alábbi idősort az általános bemutatáshoz, mert ez lesz a legkisebb MAPE-vel rendelkező modell, amelyet majd a későbbiekben fejtek ki.] Az identifikáció első lépése a differenciázás számának megválasztása (d). A d számú differenciázásra akkor van szükség, ha az idősor eredetileg nem stacioner, de d számú differenciázás elvégzése után már stacioner^[Csakúgy, mint korábban továbbra is gyenge stacionaritást értek stacionaritás alatt.] a kapott idősor. Mindhárom mutató esetében szemrevételezéssel is megállapítható, hogy ez nem teljesül. Az itt tárgyalt esetben a kiterjesztett Dickey-Fuller (Augmented Dickey-Fuller, ADF) teszt p-értéke 44.80%. Miután a Dickey-Fuller teszt esetében az alternatív hipotézis tartalmazza azt az állítást, hogy az idősor stacioner, így valóban most már teszttel is megállapíthatjuk, hogy ez az idősor nem stacioner, mivel trendet tartalmaz. Magát a trendet a Hodrick-Prescott szűrő segítségével is prezentálom a 3. ábrán.
 
-```{r p3_fertility_HP,echo=FALSE, fig.height=5, fig.width=10}
-library(mFilter)
-
-df=data.frame(LiveBirthAndFertility$Year,
-hpfilter(LiveBirthAndFertility$TotalFertility, freq = 100)$trend
-,LiveBirthAndFertility$TotalFertility)
-
-names(df)=c("Year", "HP","TFR")
-
-ggplot(df, aes(x = Year)) + 
-  geom_line(aes(y=TFR, color = "Magyarország teljes termékenységi arányszáma"),linetype="solid", size = 2) +
-  geom_line(aes(y=HP,color = "HP-szűrővel leválaszott trend"),linetype="longdash", size = 2) +
-  scale_y_continuous(expand=c(0,0), limits = c(0,2.5)) +
-  scale_x_continuous(expand=c(0,0)) +
-  labs(title = "3. ábra. Magyarország termékenységi rátájának alakulása és annak trendje", subtitle="1960-2018, Trend leválasztása Hodrick-Prescott szűrő segítségével (alfa=100)") +
- scale_color_manual(values = c("Magyarország teljes termékenységi arányszáma"="#244747","HP-szűrővel leválaszott trend"="#e3120b")) +
-  ylab("Gyermek/anya")+
-  xlab("Év")
+```{r echo=FALSE, fig.height=7, fig.width=10}
+p3
 ```
 
-Mivel az idősor trendet tartalmaz, így annak differenciázással stacionerré tétele szükséges. Ez azt jelenti, hogy az egyes évek növekménytagjait vesszük szemügyre. Ezen az idősoron elvégezve a Dickey-Fuller tesztet a kapott p-értékünk 2.72% (trendszűréses teszt), tehát ez már stacioner. Az itt tárgyalt növekménytagokat a 4. ábra mutatja be.
+Mivel az idősor trendet tartalmaz, így annak differenciázással stacionerré tétele
+szükséges. Ez azt jelenti, hogy az egyes évek növekménytagjait vesszük szemügyre. Ezen az
+idősoron elvégezve a Dickey-Fuller tesztet a kapott p-értékünk 2,72% (trendszűréses teszt),
+tehát ez már stacioner. Az itt tárgyalt növekménytagokat a 4. ábra mutatja be.
 
-```{r p4_diffTFR,echo=FALSE, fig.height=5, fig.width=10}
-df=data.frame(LiveBirthAndFertility$Year[-1],diff(LiveBirthAndFertility$TotalFertility))
-names(df)=c("x","y")
-ggplot(df, aes(x=x, y=y)) +
-  geom_hline(yintercept = 0, size=1.3, color="#4a4a4a") +
-  geom_line(size = 2, color="#e3120b") +
-  scale_y_continuous(expand=c(0,0), limits = c(-0.5, 0.5)) +
-  scale_x_continuous(expand=c(0,0)) +
-  labs(title = "4. ábra. Magyarország termékenységi rátájának növekménytagjai", subtitle="1961-2018, Differenciázás segítségével az eredeti idősor determinisztikus, illetve sztochasztikus trendje is eltávolítható") +
-  ylab("Gyermek/anya")+
-  xlab("Év")
+```{r echo=FALSE, fig.height=5, fig.width=10}
+p4
 ```
 
 A Box-Jenkins eljárás következő lépése a korrelogramok szemrevétele.
 
-
-```{r p5_acf,echo=FALSE, fig.height=7, fig.width=10, message=FALSE, warning=FALSE}
-Myacf <- acf(diff(LiveBirthAndFertility$TotalFertility), plot = FALSE, lag.max = 20)
-Myacf <- with(Myacf, data.frame(lag, acf))
-Mypacf <- acf(diff(LiveBirthAndFertility$TotalFertility), plot = FALSE, type = "partial", lag.max = 20)
-Mypacf <- with(Mypacf, data.frame(lag, acf))
-df=data.frame(
-  0:20,
-  Myacf$acf,
-  c(1,Mypacf$acf)
-)
-names(df)=c("lag","acf","pacf")
-df=df %>% gather("variable","value",-"lag")
-variable_names = list("acf" = "Korrelogram (ACF)",
-                      "pacf" = "Parciális korrelogram (PACF)")
-
-variable_labeller <- function(variable, value) {
-  return(variable_names[value])
-}
-
-ggplot(df, aes(x=lag, y=value)) +
-  geom_hline(yintercept = 0, color="grey38", size=1) +
-  geom_line(size=1.2, color="#244747") +
-  geom_point( 
-  shape=21, fill="#336666", color="#244747",size=3,stroke=1.5) +
-  facet_wrap(~ variable, ncol = 1,labeller = variable_labeller) +
-  labs(title="5. ábra. Magyarország termékenységi rátájának növekménytagjainak korrelogramja",
-       subtitle="Autokorreláció és parciális autokorreláció függvény értékei egyes késleltetések mellett"
-       ) +
-  scale_y_continuous(expand = c(0,0), limits = c(-1,1)) +
-  scale_x_continuous(expand = c(0,0)) +
-  xlab("Késleltetés száma") +
-  ylab("") +
-  theme_economist(dkpanel = T) + theme(
-    legend.title = element_blank(),
-    plot.title = element_text(margin = margin(t = 0, r = 0, b = 10, l = 0)),
-    axis.title = element_text(margin = margin(t = 10, r = 10, b = 0, l = 0)),
-    axis.ticks.length = unit(5, "points"),
-    panel.grid.major = element_line(colour = "grey", 
-        size = rel(1.75)),
-    panel.spacing = unit(2, "lines")
-  )
+```{r echo=FALSE, fig.height=5, fig.width=10}
+p5
 ```
 
-Jelen esetben mind a korrelogram,(ACF) mind a paricális korrelogram (PACF) letörik már az első késleltetés után, tehát nem egy tiszta mozgóátlag- vagy véletlen bolyongás-folyamattal állunk szemben. Érdemes több modellt is becsülni, majd Akaike-féle információs kritérium alapján dönteni. Néhány így megfontolásra kerülő modell és a hozzájuk tartozó információs kritérium értékét mutatja be az 2. táblázat.
+Jelen esetben mind a korrelogram (ACF), mind a paricális korrelogram (PACF) letörik már az első késleltetés után, tehát nem egy tiszta mozgóátlag- vagy véletlen bolyongás-folyamattal állunk szemben. Érdemes több modellt is becsülni, majd Akaike-féle információs kritérium alapján dönteni. Néhány így megfontolásra kerülő modell és a hozzájuk tartozó információs kritérium értékét mutatja be az 2. táblázat.
 
-```{r message=FALSE,echo=FALSE, warning=FALSE, comment="", results="hold"}
-library(forecast)
+```{r echo=FALSE}
+t2
+```
 
-x=diff(LiveBirthAndFertility$TotalFertility)
-x=head(x,-10)
-auto.arima(x, ic = "aicc",trace = T, method ="CSS")
-``` 
- 
-Az információs kritérium hibajellegű mutató, így a modellezés során cél a minimalizálása, ebből következik, hogy jelen esetben a legjobb modell az ARMA (0, 1), azaz a termékenységi ráta növekménytagjára egy mozgóátlag modell illeszkedik a legjobban. Mielőtt felhasználnánk a modell szükséges ellenőrizni a reziduumok autokorrelálatlanságát. A Ljung-Box teszt-statisztika p-értéke 93,75%, ahol a nullhipotézis szerint a maradéktagok autokorrelálatlanok, tehát ez a modell felhasználható előrejelzési célokra.
+Az információs kritérium hibajellegű mutató, így a modellezés során cél a minimalizálása, ebből következik, hogy jelen esetben a legjobb modell az ARMA (0, 1), azaz a termékenységi ráta növekménytagjára egy mozgóátlag modell illeszkedik a legjobban. Mielőtt felhasználnánk a modell szükséges ellenőrizni a reziduumok autokorrelálatlanságát. A Ljung-Box teszt-statisztika p-értéke 93,75%, ahol a nullhipotézis szerint a maradéktagok autokorrelálatlanok, tehát ez a modell felhasználható előrejelzési célokra.\
+\
 Ezzel a modellel elkészítve az ex post előrejelzést 2009-tól 2018-ig terjedő időszakra és azt a valós értékekkel összevetve kapjuk, hogy ennek a modellnek a MAPE mutatója 6,16%, amely a modell előrejelző képességét adja meg.
 
 ## Modellbecslés
 
+A fentebb ismertetett eljárást végrehajtottam mind a három születési mutatón, amelyeket ez a dolgozat tárgyal. Első lépés az idősorok stacionerré tétele. Ehhez az idősorok 4 esetén futattam kiterjesztett Dickey-Fuller tesztet: (1) a transzformálatlan idősorokon, (2) az idősorok növekménytagjain, (3) az idősorok természetes alapú logaritmussal történő transzformáltjaikon, Magyarországon (4) a természetes alapú logaritmus után differenciázott idősorokon^[A logdifferenciázás az idősorelemzés gyakran használt eszköze annak köszönhetően, hogy relatív kismértékű változások esetén értéke közelítőleg megegyezik a százalékos növekedés értékével. (Kirchgässner & Wolters, 2007)]. A trendet tartalmazó segédregresszióval futatott tesztek eredményét a 3. táblázat tartalmazza.
 
-A fentebb ismertetett eljárást végrehajtottam mind a három születési mutatón, amelyeket ez a dolgozat tárgyal. Első lépés az idősorok stacionerré tétele. Ehhez az idősorok 4 esetén futattam kiterjesztett Dickey-Fuller tesztet: (1) a transzformálatlan idősorokon, (2) az idősorok növekménytagjain, (3) az idősorok természetes alapú logaritmussal történő transzformáltjaikon, (4) a természetes alapú logaritmus után differenciázott idősorokon^[A logdifferenciázás az idősorelemzés gyakran használt eszköze annak köszönhetően, hogy relatív kismértékű változások esetén értéke közelítőleg megegyezik a százalékos növekedés értékével. (Kirchgässner & Wolters, 2007)]. A trendet tartalmazó segédregresszióval futatott tesztek eredményét a 3. táblázat tartalmazza. 
-
-```{r t_arima_ADF,echo=FALSE, message=FALSE, warning=FALSE}
-
-library(scales)
-library(tseries)
-df=matrix(nrow = 12,ncol = 3)
-df[1,3]=adf.test(LiveBirthAndFertility$LiveBirthTotal)$p.value
-df[2,3]=adf.test(diff(LiveBirthAndFertility$LiveBirthTotal))$p.value
-df[3,3]=adf.test(log(LiveBirthAndFertility$LiveBirthTotal))$p.value
-df[4,3]=adf.test(diff(log(LiveBirthAndFertility$LiveBirthTotal)))$p.value
-df[5,3]=adf.test(LiveBirthAndFertility$LiveBirthTo1000)$p.value
-df[6,3]=adf.test(diff(LiveBirthAndFertility$LiveBirthTo1000))$p.value
-df[7,3]=adf.test(log(LiveBirthAndFertility$LiveBirthTo1000))$p.value
-df[8,3]=adf.test(diff(log(LiveBirthAndFertility$LiveBirthTo1000)))$p.value
-df[9,3]=adf.test(LiveBirthAndFertility$TotalFertility)$p.value
-df[10,3]=adf.test(diff(LiveBirthAndFertility$TotalFertility))$p.value
-df[11,3]=adf.test(log(LiveBirthAndFertility$TotalFertility))$p.value
-df[12,3]=adf.test(diff(log(LiveBirthAndFertility$TotalFertility)))$p.value
-df=data.frame(df)
-df[,3]=percent(df[,3])
-df[,1]=c(rep("Összes születés",4),rep("Ezer főre eső születés",4),rep("TTA",4))
-df[,2]=rep(c("x","diff(x)","log(x)","diff(log(x))"),3)
-names(df)=c("Születési mutató","Transzformáció","ADF-teszthez tartozó p-érték")
-kable(df,caption = "A megfontolásra kerülő transzformációk és azok ADF-tesztjeihez tartozó p-értékek a három születési mutatón
-Születési mutató	Transzformáció	ADF-teszthez tartozó p-érték", align = c("l",rep("c",3))) %>%
-    kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"),full_width = T, fixed_thead = T)
+```{r echo=FALSE}
+t3
 ```
 
 A 3. táblázatból megállapítható, hogy 5%-os szignifikanciaszinten az éves összes születésszám és az ezer főre eső születésszám differenciázott, illetve logdifferenciázott transzformációja tekinthető stacionernek. Mindazonáltal a teljes termékenységi arányszám logdifferenciázott transzformációjának tesztjéhez tartozó p-érték is csak éppen meghaladja az 5%-os értéket, ezért mindhárom mutató esetében a differenciázott és logdifferenciázott idősorokon is elvégzem a Box-Jenkins eljárást. Az így kapott eredmények a 4. táblázatban láthatók.
 
-
-```{r c_ARIMA_models, echo=FALSE, message=FALSE, warning=FALSE, results="hide"}
-x1 = 1:12 #collector vectors
-x2 = 1:12
-x3 = 1:12
-x4 = 1:12
-x = ts(LiveBirthAndFertility$LiveBirthTotal)
-MyArima = auto.arima(head(x,-10), ic = "aic", trace = F)
-x1[1] = paste("ARMA (", paste(MyArima$arma[1:2], collapse = ", "), ")", sep =
-                "")
-x2[1] = sum(abs(tail(x, 10) - forecast(MyArima, 10)$mean) /
-              tail(x, 10) * 100) / 10
-x3[1] = checkresiduals(MyArima, plot = F)$p.value
-x4[1] = jarque.bera.test(na.omit(MyArima$residuals))$p.value
-
-MyArima = auto.arima(head(x,-10),
-                     ic = "aic",
-                     trace = F,
-                     method = "CSS")
-x1[2] = paste("ARMA (", paste(MyArima$arma[1:2], collapse = ", "), ")", sep =
-                "")
-x2[2] = sum(abs(tail(x, 10) - forecast(MyArima, 10)$mean) /
-              tail(x, 10) * 100) / 10
-x3[2] = checkresiduals(MyArima, plot = F)$p.value
-x4[2] = jarque.bera.test(na.omit(MyArima$residuals))$p.value
-
-MyArima = auto.arima(diff(log(head(x,-10))), ic = "aic", trace = F)
-x1[3] = paste("ARMA (", paste(MyArima$arma[1:2], collapse = ", "), ")", sep =
-                "")
-x2[3] = sum(abs((tail(exp(
-  cumsum(c(
-    log(x[1]), MyArima$fitted, forecast(MyArima, 10)$mean
-  ))
-), 10) - tail(x, 10))) / tail(x, 10) * 100) / 10
-x3[3] = checkresiduals(MyArima, plot = F)$p.value
-x4[3] = jarque.bera.test(na.omit(MyArima$residuals))$p.value
-
-MyArima = auto.arima(diff(log(x)),
-                     ic = "aic",
-                     trace = F,
-                     method = "CSS")
-x1[4] = paste("ARMA (", paste(MyArima$arma[1:2], collapse = ", "), ")", sep =
-                "")
-x2[4] = sum(abs((tail(exp(
-  cumsum(c(
-    log(x[1]), MyArima$fitted, forecast(MyArima, 10)$mean
-  ))
-), 10) - tail(x, 10))) / tail(x, 10) * 100) / 10
-x3[4] = checkresiduals(MyArima, plot = F)$p.value
-x4[4] = jarque.bera.test(na.omit(MyArima$residuals))$p.value
-
-
-x = ts(LiveBirthAndFertility$LiveBirthTo1000)
-MyArima = auto.arima(head(x,-10), ic = "aic", trace = F)
-x1[5] = paste("ARMA (", paste(MyArima$arma[1:2], collapse = ", "), ")", sep =
-                "")
-x2[5] = sum(abs(tail(x, 10) - forecast(MyArima, 10)$mean) /
-              tail(x, 10) * 100) / 10
-x3[5] = checkresiduals(MyArima, plot = F)$p.value
-x4[5] = jarque.bera.test(na.omit(MyArima$residuals))$p.value
-
-MyArima = auto.arima(head(x,-10),
-                     ic = "aic",
-                     trace = F,
-                     method = "CSS")
-x1[6] = paste("ARMA (", paste(MyArima$arma[1:2], collapse = ", "), ")", sep =
-                "")
-x2[6] = sum(abs(tail(x, 10) - forecast(MyArima, 10)$mean) /
-              tail(x, 10) * 100) / 10
-x3[6] = checkresiduals(MyArima, plot = F)$p.value
-x4[6] = jarque.bera.test(na.omit(MyArima$residuals))$p.value
-
-MyArima = auto.arima(diff(log(head(x,-10))), ic = "aic", trace = F)
-x1[7] = paste("ARMA (", paste(MyArima$arma[1:2], collapse = ", "), ")", sep =
-                "")
-x2[7] = sum(abs((tail(exp(
-  cumsum(c(
-    log(x[1]), MyArima$fitted, forecast(MyArima, 10)$mean
-  ))
-), 10) - tail(x, 10))) / tail(x, 10) * 100) / 10
-x3[7] = checkresiduals(MyArima, plot = F)$p.value
-x4[7] = jarque.bera.test(na.omit(MyArima$residuals))$p.value
-
-MyArima = auto.arima(diff(log(x)),
-                     ic = "aic",
-                     trace = F,
-                     method = "CSS")
-x1[8] = paste("ARMA (", paste(MyArima$arma[1:2], collapse = ", "), ")", sep =
-                "")
-x2[8] = sum(abs((tail(exp(
-  cumsum(c(
-    log(x[1]), MyArima$fitted, forecast(MyArima, 10)$mean
-  ))
-), 10) - tail(x, 10))) / tail(x, 10) * 100) / 10
-x3[8] = checkresiduals(MyArima, plot = F)$p.value
-x4[8] = jarque.bera.test(na.omit(MyArima$residuals))$p.value
-
-
-
-x = ts(LiveBirthAndFertility$TotalFertility)
-MyArima = auto.arima(head(x,-10), ic = "aic", trace = F)
-x1[9] = paste("ARMA (", paste(MyArima$arma[1:2], collapse = ", "), ")", sep =
-                "")
-x2[9] = sum(abs(tail(x, 10) - forecast(MyArima, 10)$mean) /
-              tail(x, 10) * 100) / 10
-x3[9] = checkresiduals(MyArima, plot = F)$p.value
-x4[9] = jarque.bera.test(na.omit(MyArima$residuals))$p.value
-
-MyArima = auto.arima(head(x,-10),
-                     ic = "aic",
-                     trace = F,
-                     method = "CSS")
-x1[10] = paste("ARMA (", paste(MyArima$arma[1:2], collapse = ", "), ")", sep =
-                 "")
-x2[10] = sum(abs(tail(x, 10) - forecast(MyArima, 10)$mean) /
-               tail(x, 10) * 100) / 10
-x3[10] = checkresiduals(MyArima, plot = F)$p.value
-x4[10] = jarque.bera.test(na.omit(MyArima$residuals))$p.value
-
-MyArima = auto.arima(diff(log(head(x,-10))), ic = "aic", trace = F)
-x1[11] = paste("ARMA (", paste(MyArima$arma[1:2], collapse = ", "), ")", sep =
-                 "")
-x2[11] = sum(abs((tail(exp(
-  cumsum(c(
-    log(x[1]), MyArima$fitted, forecast(MyArima, 10)$mean
-  ))
-), 10) - tail(x, 10))) / tail(x, 10) * 100) / 10
-x3[11] = checkresiduals(MyArima, plot = F)$p.value
-
-
-x4[11] = jarque.bera.test(na.omit(MyArima$residuals))$p.value
-
-MyArima = auto.arima(diff(log(x)),
-                     ic = "aic",
-                     trace = F,
-                     method = "CSS")
-x1[12] = paste("ARMA (", paste(MyArima$arma[1:2], collapse = ", "), ")", sep =
-                 "")
-x2[12] = sum(abs((tail(exp(
-  cumsum(c(
-    log(x[1]), MyArima$fitted, forecast(MyArima, 10)$mean
-  ))
-), 10) - tail(x, 10))) / tail(x, 10) * 100) / 10
-x3[12] = checkresiduals(MyArima, plot = F)$p.value
-
-x4[12] = jarque.bera.test(na.omit(MyArima$residuals))$p.value
-
-library(formattable)
-
-df = matrix(ncol = 7, nrow = 12)
-df = data.frame(
-  c(
-    rep("Összes születés", 4),
-    rep("Ezer főre eső születés", 4),
-    rep("TTA", 4)
-  ),
-  rep(c(
-    "diff(x)", "diff(x)", "log(diff(x))", "log(diff(x))"
-  ), 3),
-  
-  x1,
-  rep(c("ML", "CSS"), 6),
-  percent(x2 / 100),
-  percent(x3),
-  percent(x4, d=2)
-  
-)
-names(df) = c(
-  "Születési mutató",
-  "Transzformáció",
-  "Illesztett modell",
-  "Becslés módszere",
-  "MAPE",
-  "Ljung-Box (p-érték)",
-  "Jarque-Bera (p-érték)"
-)
-rownames(df) = NULL
+```{r echo=FALSE}
+t4
 ```
 
-```{r t_ARIMA_models, echo=FALSE}
-df %>%
-  kable(
-    caption = "ARMA-modellekkel készített ex-post előrejelzések eredményei",align = c("l",rep("c",6)), booktaps = F
-  ) %>%
-  kable_styling(
-    bootstrap_options = c("striped", "hover", "condensed", "responsive"), full_width = T, fixed_thead = T
-  )
-```
 
-*Megjegyzés: az itt felsorolt modellek egyike sem tartalmaz konstanst. Ennek oka, hogy a differenciázást követően az idősor a nulla körül ingadozik, így a konstans nélküli modellek Akaike-féle információs kritériuma kivétel nélkül mindig alacsonyabb volt. *
-
+*Megjegyzés: az itt felsorolt modellek egyike sem tartalmaz konstanst. Ennek oka, hogy a differenciázást követően az idősor a nulla körül ingadozik, így a konstans nélküli modellek Akaike-féle információs kritériuma kivétel nélkül mindig alacsonyabb volt.*\
+\
 A 4. táblázatban a Jarque-Bera tesztek p-értékei is feltüntetésre kerültek, mivel ez lényeges abból a szempontból, hogy alkalmazható-e Maximum Likehood (ML) módszerrel készített becslés, amely látható módon néhány esetben jobb MAPE mutatóval rendelkezik, mint a feltételes legkisebb négyzetek módszer (CSS). Mivel a Jarque-Bera tesztek p-értékei rendre 0 körül alakulnak, így mindegyik idősor modellezésénél a CSS módszert szükséges alkalmazni. A reziduumok gyakorisági görbéjének leptokurtikus (azonos várható értékkel és szórással rendelkező normális eloszlásnál csúcsosabb eloszlású) eloszlását a 6. ábra mutatja be. Az ábrán látszódik, hogy a hibatagok eloszlása a normális eloszlásnál csúcsosabb és balra ferde, így a lehetséges modellek köre a CSS becslést alkalmazókra szűkül.
-
-```{r p_6_residual_density,echo=FALSE, fig.height=6, fig.width=10, message=FALSE, warning=FALSE}
-x=auto.arima(head(ts(LiveBirthAndFertility$TotalFertility),-10),
-                     ic = "aic",
-                     trace = F)
-#checkresiduals(x)
-df=data.frame(x=x$residuals)
-ggplot(data = df) +
-  stat_function(fun = dnorm, args = list(mean = mean(df$x), sd = sd(df$x)),aes(color="Azonos várható értékő és szórású normáleloszlás gyakorisággörbéje"),geom = "area",fill="#244747", size=0,alpha=0.5)+
-   geom_density(aes(x, color="Reziduumok gyakorisági görbéje"),fill="#e3120b",alpha=0.5,linetype="solid" ,position = "stack",size=1.2) + 
-    scale_color_manual(values = c("Reziduumok gyakorisági görbéje" = "#e3120b","Azonos várható értékő és szórású normáleloszlás gyakorisággörbéje" = "#244747")) +
-  scale_x_continuous(expand = c(0,0)) +
-  scale_y_continuous(expand = c(0,0), limits = c(0,10)) +
-  labs(title="6. ábra. Reziduumok eloszlásának vizsgálata gyakorisági görbén",
-       subtitle = "A TTA-ra illesztett ARIMA(0,1,1) modell reziduumai a normál eloszlásnál csúcsosabb eloszlással rendelkeznek (Leptokurtikus)"
-       ) +
-  xlab("") +
-  ylab("") +
-  theme(
-    panel.grid.major = element_line(colour = "white", 
-        size = rel(1)),
-    panel.grid.major.x  = element_line(colour = "white", 
-        size = rel(1)),
-    legend.title = element_blank(),
-    legend.position = "none",
-  )
-
+```{r echo=FALSE, fig.height=7, fig.width=10}
+p6
 ```
 
 A feltételes legkisebb négyzetek módszerével becsült modellek közül legjobb előrejelző képességűnek tekintem a legkisebb átlagos abszolút százalékos hibával rendelkezőt. Ez a modell pedig az előző alfejezetben is tárgyalt teljes termékenységi arányszám növekménytagjain futatott mozgóátlag modell. Ennek a mozgóátlag-modellnek egyetlen paramétere van, amelynek értéke 0,4503. A modellel ezután ex ante előrejelzést készítek, tehát olyan évekre becsülök, amelyek a mintán kívülre esnek^[Bár számításaimat úgy készítettem el, hogy a későbbiekben új adatok ismeretében könnyen reprodukálható legyen, jelen tanulmányban az adatok letöltése és a dolgozat megjelenése között nem ellenőriztem, hogy a KSH közölt-e már későbbi adatok, így csak az 1960-tól 2018-ig terjedő időszakot vizsgálom.]. Ehhez már felhasználom a 2009-2018-ig terjedő időszak megfigyeléseit is. Így a termékenységi arányszámra illesztett ARIMA (0, 1, 1) modell mozgóátlag paraméterének értéke 0,4040-re csökken. Az ezzel a modellel készített ex ante előrejelzést a 7. ábra mutatja be.
-7. ábra. A TTA-ra illesztett ARIMA (0, 1, 1) modellel készített ex ante előrejelzés 10 évre előre (2019-2028)
-Miután a modell egy egyszerű mozgóátlag-modell a differenciázott idősoron, így előrejelzése az első évre való becslés után az, hogy az idősor nem változik tovább. Azaz csak statikus előrejelzés esetén mutat nullától különböző növekménytagot, dinamikus előrejelzése az egyszerű változatlanság. Azonban maga a modell paramétere elemzésre továbbra is felhasználható és igazából ez volt a modell választás mögötti eredeti megfontolás is.
-Fontos észben tartani, hogy ez az ARMA (0, 1) modell a differenciázott idősoron, tehát a teljes termékenységi rátának egyik évről másik évre való abszolút eltérésén értelmezett. Egy ARMA modell autoregresszív és mozgóátlag paraméterekből épül fel. Mikor a következő évre való értéket becsüli, akkor az autoregresszív paraméter a korábbi év konkrét értékével szorzandó össze, míg a mozgóátlag a korábbi évre vonatkozó becslés hibatagjával^[Illetőlegesen korábbi évek, amennyiben több autoregresszív, vagy mozgóátlag paramétert is tartalmaz a modell.].  Az autoregresszív tag tulajdonképpen azt reprezentálja, hogy egyik évben egy kilengés hosszabb ideig eltéríti a mutatót az eredeti pályáról, mint ahogyan az egy tisztán mozgóátlag-folyamatnál játszódna le. Ezen modell alapján arra a következtetésre jutunk, hogy egy olyan hipotetikus esetben mikor a termékenységi ráta nyugalmi helyzetben van és egyik évben az értéke sokk hatására elváltozik, akkor a következő évben még a mutatónak a sokk mértéken 40%-nyi azonos irányú változására lehet számítani, majd a kilengés hatása teljesen eltűnik. Ez a jellegzetesség látható például, amikor 1967-ben 0,125 gyermek/anya egységnyivel nőtt TTA értéke a korábbi évhez képest, a következő évben szintén nőtt még 0,051 egységgel, majd 4 éven át csökkenés következett. 1973-ban nem történt változás, 1974-ben nőtt 0,34 egységgel, majd 1975-ben már csak 0,07 egységgel, 1976-ban meg már csökkent. Hasonló módon 1976-ban 0,11 egységgel csökkent a ráta, majd a következő évben a csökkenés mértéke már 0,08 egységre mérséklődött, később teljesen ugyanezek a számokat látjuk 1996-ban és a következő években.  Természetesen számos ellenpéldát is lehetne hozni, azonban az látszik, hogy a nagyobb volumenű változások okozta kilengések után hamar megáll az impulzus^[Bár előrejelzésre valóban nem túl „szerencsés” egy mozgóátlag-modell, mert csak annyit, mond, hogy a most még hatást kifejtő impulzusok le fognak csengeni, mivel az újakat nem határozzuk meg a modellnek exogén módon, így a 2 évvel későbbi időszakra nem mond túl sokat. Ennek ellenére a mozgóátlag-modell jelleg is egy plusz információ az idősorról. Annyival legalábbis biztosan előrébb sikerült mozdítani az elemzést, hogy Granger és Newbold ajánlása alapján elkerültük, hogy olyan dolgot magyarázzunk külső változókkal, amiket saját magukkal is teljes egészében meglehet.].
+
+```{r echo=FALSE, fig.height=8, fig.width=10, message=FALSE, warning=FALSE}
+p7
+```
+
+Miután a modell egy egyszerű mozgóátlag-modell a differenciázott idősoron, így előrejelzése az első évre való becslés után az, hogy az idősor nem változik tovább. Azaz csak statikus előrejelzés esetén mutat nullától különböző növekménytagot, dinamikus előrejelzése az egyszerű változatlanság. Azonban maga a modell paramétere elemzésre továbbra is felhasználható és igazából ez volt a modell választás mögötti eredeti megfontolás is.\
+\
+Fontos észben tartani, hogy ez az ARMA (0, 1) modell a differenciázott idősoron, tehát a teljes termékenységi rátának egyik évről másik évre való abszolút eltérésén értelmezett. Egy ARMA modell autoregresszív és mozgóátlag paraméterekből épül fel. Mikor a következő évre való értéket becsüli, akkor az autoregresszív paraméter a korábbi év konkrét értékével szorzandó össze, míg a mozgóátlag a korábbi évre vonatkozó becslés hibatagjával^[Illetőlegesen korábbi évek, amennyiben több autoregresszív, vagy mozgóátlag paramétert is tartalmaz a modell.]. Az autoregresszív tag tulajdonképpen azt reprezentálja, hogy egyik évben egy kilengés hosszabb ideig eltéríti a mutatót az eredeti pályáról, mint ahogyan az egy tisztán mozgóátlag-folyamatnál játszódna le. Ezen modell alapján arra a következtetésre jutunk, hogy egy olyan hipotetikus esetben mikor a termékenységi ráta nyugalmi helyzetben van és egyik évben az értéke sokk hatására elváltozik, akkor a következő évben még a mutatónak a sokk mértéken 40%-nyi azonos irányú változására lehet számítani, majd a kilengés hatása teljesen eltűnik. Ez a jellegzetesség látható például, amikor 1967-ben 0,125 gyermek/anya egységnyivel nőtt TTA értéke a korábbi évhez képest, a következő évben szintén nőtt még 0,051 egységgel, majd 4 éven át csökkenés következett. 1973-ban nem történt változás, 1974-ben nőtt 0,34 egységgel, majd 1975-ben már csak 0,07 egységgel, 1976-ban meg már csökkent. Hasonló módon 1976-ban 0,11 egységgel csökkent a ráta, majd a következő évben a csökkenés mértéke már 0,08 egységre mérséklődött, később teljesen ugyanezek a számokat látjuk 1996-ban és a következő években. Természetesen számos ellenpéldát is lehetne hozni, azonban az látszik, hogy a nagyobb volumenű változások okozta kilengések után hamar megáll az impulzus^[Bár előrejelzésre valóban nem túl „szerencsés” egy mozgóátlag-modell, mert csak annyit, mond, hogy a most még hatást kifejtő impulzusok le fognak csengeni, mivel az újakat nem határozzuk meg a modellnek exogén módon, így a 2 évvel későbbi időszakra nem mond túl sokat. Ennek ellenére a mozgóátlag-modell jelleg is egy plusz információ az idősorról. Annyival legalábbis biztosan előrébb sikerült mozdítani az elemzést, hogy Granger és Newbold ajánlása alapján elkerültük, hogy olyan dolgot magyarázzunk külső változókkal, amiket saját magukkal is teljes egészében meglehet.].

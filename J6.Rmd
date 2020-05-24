@@ -1,0 +1,22 @@
+# Osszefoglalas
+
+```{css, echo=FALSE}
+p {
+text-align: justify;
+}
+caption {
+      color: #4a4a4a;
+      font-weight: bold;
+      font-size: 1.2em;
+      text-align: center;
+      font-family: Helvetica;
+    } 
+```
+
+Tanulmányomban röviden bemutattam a három legfontosabb születési indikátor tartalmi eltérését, és az ebből konklúzióként levonható modellezési, illetve natalista törekvések értékelésére vonatkozó alapelveket. Egy a születésszám befolyásolását célzó gazdasági, politikai beavatkozás értékelését sok esetben érdemes a teljes termékenységi arányszám alapján megítélni, amennyiben az a korfa feljebbi rétegeire semleges (nem fejt ki emigrációs hatást). Bizonyos esetekben pusztán az interpretálhatóság megkönnyítésért ragaszkodtam a gazdasági-társadalmi változók születési indikátorokon kifejtett hatásának értékelésében.\
+\
+Box-Jenkins eljárást alkalmazva feltártam, hogy a születési indikátorokon legjobb illeszkedést elérő modell a termékenységi rátára becsült ARIMA (0, 1, 1) modell, amelynek dinamikus előrejelzése a bekövetkező sokkok exogén megadásának hiányában a magyar TTA változatlanságát vetíti előre. A modell mozgóátlag paramétere alapján megállapítottam, hogy a termékenységi arányszámban bekövetkező nagyobb volumenű változások gyorsan lecsengőek, a kiugró értéket követő második évre teljesen eltűnnek.\
+\
+Az OECD honlapján elérhető országok idősorain végeztem kointegrációs teszteket, melyeknek eredményéből az látszik, hogy az egymással szomszédos országok termékenységi rátái által bejárt történelmi utak valóban jobban hasonlítanak egymásra, mint a nem szomszédos országoké. Ezentúl a tesztek között megtalálható, hogy Magyarország TTA-ja Csehország és Szlovákia idősorával járt be a megfigyelt időszakban hasonló utat.\
+\
+A különböző gazdasági- és társadalmi indikátorok születési mutatókkal vett kapcsolataik vizsgálatát Granger-kosági tesztekre alapoztam, amelyet vektor-autoregresszív modelleken végeztem el. Ezek alapján azt találtam, hogy a születési indikátoroknak az így vizsgálható 18 éves intervallumban (1) nincs jelentős hatása a gazdaságilag aktívak számára. A (2) fogyasztás jelentős mértékben befolyásolja a születésszámot. A belőle készített becslés alapján az állapítható meg, hogy évenkénti átlagosan 2,5 százalékponttal nagyobb növekedése a fogyasztásnak átlagosan 7135 gyermek megszületéséhez járul hozzá 6 év alatt. A (3) termékenységi rátát Granger-okának találtam a három évvel későbbi háztartások adósságállományának. (4) Az állam által finanszírozott nyugdíjrendszer mérete és a születési mutatók között nem látszik semmilyen irányú Granger-okság. (6) A családtámogatások mértékén nem látszik, hogy valóban hatással lenne a születési indikátorokra. (7) Az évente kötött házasságok száma kointegrál a világra jövő gyermekek számával, és az utóbbi évtizedben a születésszám felülmúlta a köttetett házasságokból adódó egyensúlyi értékét. (8) A munkanélküliség Granger-értelemben oka a termékenységi rátának, hatásának előjele negatív. (9) A szegénységi és egyenlőtlenségi mutatók Granger-okai a születési indikátoroknak, azonban azokról elérhető idősorok rövidsége nem teszi lehetővé ennek a hipotézisnek egyértelmű elvetését, a hamis regresszió veszélye fennáll. (10) A császármetszések száma és a születési mutatók között nem lászik Granger-okság. (11) A bűnözési statisztikákra vonatkozó hipotézis tesztelése nem sikerült az általam alkalmazott eljárással, ellenben közben felfedésre került, hogy a bűnelkövetések száma Granger-értelemben oka a születési mutatóknak, előjele negatív.
